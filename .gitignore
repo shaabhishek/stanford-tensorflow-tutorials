@@ -4,7 +4,10 @@
 *.SUNet
 *.pyc
 .env/*
+.vscode
+assignments/*/data
 examples/data
 examples/graphs/*
+assignments/*/graphs/*
 examples/checkpoints/*
 examples/visualization/*

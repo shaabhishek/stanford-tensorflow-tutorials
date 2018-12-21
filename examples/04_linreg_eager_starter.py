@@ -8,7 +8,9 @@ import time
 
 import tensorflow as tf
 import tensorflow.contrib.eager as tfe
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TKAgg')
+from matplotlib import pyplot as plt
 
 import utils
 
@@ -19,38 +21,42 @@ DATA_FILE = 'data/birth_life_2010.txt'
 #############################
 ########## TO DO ############
 #############################
+tfe.enable_eager_execution()
 
 # Read the data into a dataset.
 data, n_samples = utils.read_birth_life_data(DATA_FILE)
 dataset = tf.data.Dataset.from_tensor_slices((data[:,0], data[:,1]))
+dataset = dataset.batch(5)
 
 # Create weight and bias variables, initialized to 0.0.
 #############################
 ########## TO DO ############
 #############################
-w = None
-b = None
+# w = tf.get_variable("w", initializer=tf.constant(0.0))
+# b = tf.get_variable("b", initializer=tf.constant(0.0))
+w = tf.Variable(0.0)
+b = tf.Variable(0.0)
 
 # Define the linear predictor.
 def prediction(x):
   #############################
   ########## TO DO ############
   #############################
-  pass
+  return x*w + b
 
 # Define loss functions of the form: L(y, y_predicted)
 def squared_loss(y, y_predicted):
   #############################
   ########## TO DO ############
   #############################
-  pass
+  return tf.square(y - y_predicted)
 
 def huber_loss(y, y_predicted):
   """Huber loss with `m` set to `1.0`."""
   #############################
   ########## TO DO ############
   #############################
-  pass
+  return tf.losses.huber_loss(y, y_predicted, delta=1.0)
 
 def train(loss_fn):
   """Train a regression model evaluated using `loss_fn`."""
@@ -62,13 +68,15 @@ def train(loss_fn):
   ########## TO DO ############
   #############################
   def loss_for_example(x, y):
-    pass
+    # y_predicted = prediction(x)
+    # return huber_loss(y, y_predicted)
+    return loss_fn(y, prediction(x))
 
   # Obtain a gradients function using `tfe.implicit_value_and_gradients`.
   #############################
   ########## TO DO ############
   #############################
-  grad_fn = None
+  grad_fn = tfe.implicit_value_and_gradients(loss_for_example)
 
   start = time.time()
   for epoch in range(100):
@@ -78,6 +86,7 @@ def train(loss_fn):
       #############################
       ########## TO DO ############
       #############################
+      loss, gradients = grad_fn(x_i, y_i)
       optimizer.apply_gradients(gradients)
       total_loss += loss
     if epoch % 10 == 0:

@@ -34,10 +34,12 @@ train_data = train_data.shuffle(10000) # if you want to shuffle your data
 train_data = train_data.batch(batch_size)
 
 # create testing Dataset and batch it
-test_data = None
 #############################
 ########## TO DO ############
 #############################
+test_data = tf.data.Dataset.from_tensor_slices(test)
+test_data = test_data.shuffle(10000)
+test_data = test_data.batch(batch_size)
 
 
 # create one iterator and initialize it with different datasets
@@ -53,24 +55,25 @@ test_init = iterator.make_initializer(test_data)	# initializer for train_data
 # b is initialized to 0
 # shape of w depends on the dimension of X and Y so that Y = tf.matmul(X, w)
 # shape of b depends on Y
-w, b = None, None
 #############################
 ########## TO DO ############
 #############################
+w = tf.get_variable("w", [784, 10], initializer=tf.random_normal_initializer(0, 0.01))
+b = tf.get_variable("b", [1, 10], initializer=tf.zeros_initializer())
 
 
 # Step 4: build model
 # the model that returns the logits.
 # this logits will be later passed through softmax layer
-logits = None
+# logits = 
 #############################
 ########## TO DO ############
 #############################
-
+logits = tf.matmul(img, w) + b
 
 # Step 5: define loss function
 # use cross entropy of softmax of logits as the loss function
-loss = None
+loss = tf.losses.softmax_cross_entropy(label, logits)
 #############################
 ########## TO DO ############
 #############################
@@ -78,7 +81,7 @@ loss = None
 
 # Step 6: define optimizer
 # using Adamn Optimizer with pre-defined learning rate to minimize loss
-optimizer = None
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 #############################
 ########## TO DO ############
 #############################
@@ -96,7 +99,7 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
     # train the model n_epochs times
-    for i in range(n_epochs): 	
+    for i in range(n_epochs):
         sess.run(train_init)	# drawing samples from train_data
         total_loss = 0
         n_batches = 0
